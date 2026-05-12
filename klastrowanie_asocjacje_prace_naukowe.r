@@ -1,6 +1,6 @@
 #' ---
-#' title: "Text Mining: Model Bag of Words"
-#' author: "Autor: Janek "
+#' title: "Klastrowanie i asocjacje w zbiorze prac naukowych"
+#' author: "Autor: Jan Jaworski, Weronika Karolak, Mikołaj Dąbrowski "
 #' date: "`r Sys.Date()`"
 #' output:
 #'   html_document:
@@ -13,7 +13,7 @@
 #'       collapsed: false
 #'       smooth_scroll: true
 #'     code_folding: hide    # Kod domyślnie zwinięty (estetyczniej)
-#'     number_sections: true # Numeruje nagłówki (lepsza nawigacja)
+#'     number_sections: false # Numeruje nagłówki (lepsza nawigacja)
 #'     css: "custom.css"     # Możliwość stworzenia własnego stylowania (opcjonalne)
 #' ---
 
@@ -32,37 +32,19 @@ library(DT)           # Interaktywne tabele
 
 # Dane tekstowe ----
 
-# Ustaw Working Directory!
-# Załaduj dokumenty z folderu
-#docs <- DirSource("textfolder")
-# W razie potrzeby dostosuj ścieżkę
 
-# docs <- DirSource("transkrypcje")  #dla folderu
-# corpus <- VCorpus(docs)
+#Ładowanie danych z pliku csv
 
+data <- read.csv("ai_detection_dataset.csv", stringsAsFactors = FALSE, encoding = "UTF-8")
 
-data <- read.csv("C:/Users/veron/Desktop/PSI/ai_detection_dataset.csv", stringsAsFactors = FALSE, encoding = "UTF-8")
 # Usuwamy wiersze, które nie mają tekstu lub mają duplikaty tytułów
 data <- data[data$abstract != "" & !is.na(data$abstract), ]
 data <- data[!duplicated(data$title), ]
  df_for_corpus <- data %>%
   select(doc_id = title, text = abstract)
- corpus <- VCorpus(DataframeSource(df_for_corpus)) # dla csv konkretnego
-
-# Utwórz korpus dokumentów tekstowych
-
-# corpus <- VCorpus(VectorSource(data$Lyrics))
-# names(corpus) <- data$Song.Title
-
-
-
-# Tworzenie korpusu
-
-
-### Gdy tekst znajduje się w jednym pliku csv:
-### data <- read.csv("file.csv", stringsAsFactors = FALSE, encoding = "UTF-8")
-### corpus <- VCorpus(VectorSource(data$text))
-
+ 
+ # Utwórz korpus dokumentów tekstowych
+ corpus <- VCorpus(DataframeSource(df_for_corpus)) 
 
 
 # Korpus - zawartość przykładowego elementu
@@ -144,8 +126,7 @@ corpus <- tm_map(corpus, stripWhitespace)
 # corpus[[1]][[1]][7:9]
 
 # usunięcie ewt. zbędnych nazw własnych
-corpus <- tm_map(corpus, removeWords, c("rose", "roses", "kate", "kates", "iris", "tyler", "tylers", "javi", "javis", "reed", "josh", "joshs", "elliot", "elliots", "julian", "julians", "patrick", "patricks", "margot", "margots", "one", "however", "ladybug" ))
-#corpus <- tm_map(corpus, removeWords, c("know","can","well","just","will","get","come","yes","no","now"))
+corpus <- tm_map(corpus, removeWords, c("know","can","well","just","will","get","come","yes","no","now"))
 corpus <- tm_map(corpus, stripWhitespace)
 
 # Sprawdzenie
@@ -170,9 +151,6 @@ tdm
 
 tdm_m <- as.matrix(tdm)
 
-tdm_m[1:5, 1:5]
-# Można zapisać TDM w pliku .csv
-# write.csv(tdm_m, file="TDM.csv")
 
 
 # b) Funkcja DocumentTermMatrix() ----
@@ -182,10 +160,6 @@ dtm
 # inspect(dtm)
 
 dtm_m <- as.matrix(dtm)
-
-dtm_m[1:5, 1:5]
-# Można zapisać DTM w pliku .csv
-# write.csv(dtm_m, file="DTM.csv")
 
 
 #' # 2. Zliczanie częstości słów
@@ -252,7 +226,7 @@ fviz_nbclust(t(dtm_m), kmeans, method = "silhouette") +
 
 # Wykonaj klastrowanie kmeans
 # (sprawdź wyniki dla k = 3,4,5)
-set.seed(123) # ziarno losowe dla replikacji wyników
+set.seed(99) # ziarno losowe dla replikacji wyników
 
 
 
